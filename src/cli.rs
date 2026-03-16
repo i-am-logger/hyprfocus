@@ -2,7 +2,7 @@ use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[command(
-    name = "focus",
+    name = "hyprfocus",
     about = "Monochromatic screen overlay for Hyprland",
     version,
     arg_required_else_help = true
@@ -73,81 +73,85 @@ mod tests {
 
     #[test]
     fn parse_theme() {
-        let cli = Cli::try_parse_from(["focus", "--theme", "military"]).unwrap();
+        let cli = Cli::try_parse_from(["hyprfocus", "--theme", "military"]).unwrap();
         assert_eq!(cli.theme.as_deref(), Some("military"));
     }
 
     #[test]
     fn parse_off() {
-        let cli = Cli::try_parse_from(["focus", "--off"]).unwrap();
+        let cli = Cli::try_parse_from(["hyprfocus", "--off"]).unwrap();
         assert!(cli.off);
     }
 
     #[test]
     fn parse_list() {
-        let cli = Cli::try_parse_from(["focus", "--list"]).unwrap();
+        let cli = Cli::try_parse_from(["hyprfocus", "--list"]).unwrap();
         assert!(cli.list);
     }
 
     #[test]
     fn parse_opacity_valid() {
-        let cli = Cli::try_parse_from(["focus", "--theme", "x", "--opacity", "0.5"]).unwrap();
+        let cli = Cli::try_parse_from(["hyprfocus", "--theme", "x", "--opacity", "0.5"]).unwrap();
         assert!((cli.opacity - 0.5).abs() < f32::EPSILON);
     }
 
     #[test]
     fn parse_opacity_default() {
-        let cli = Cli::try_parse_from(["focus", "--theme", "x"]).unwrap();
+        let cli = Cli::try_parse_from(["hyprfocus", "--theme", "x"]).unwrap();
         assert!((cli.opacity - 1.0).abs() < f32::EPSILON);
     }
 
     #[test]
     fn parse_opacity_out_of_range() {
-        assert!(Cli::try_parse_from(["focus", "--theme", "x", "--opacity", "1.5"]).is_err());
+        assert!(Cli::try_parse_from(["hyprfocus", "--theme", "x", "--opacity", "1.5"]).is_err());
     }
 
     #[test]
     fn parse_opacity_invalid() {
-        assert!(Cli::try_parse_from(["focus", "--theme", "x", "--opacity", "abc"]).is_err());
+        assert!(Cli::try_parse_from(["hyprfocus", "--theme", "x", "--opacity", "abc"]).is_err());
     }
 
     #[test]
     fn parse_brightness_valid() {
-        let cli = Cli::try_parse_from(["focus", "--theme", "x", "--brightness", "0.5"]).unwrap();
+        let cli =
+            Cli::try_parse_from(["hyprfocus", "--theme", "x", "--brightness", "0.5"]).unwrap();
         assert!((cli.brightness - 0.5).abs() < f32::EPSILON);
     }
 
     #[test]
     fn parse_brightness_default() {
-        let cli = Cli::try_parse_from(["focus", "--theme", "x"]).unwrap();
+        let cli = Cli::try_parse_from(["hyprfocus", "--theme", "x"]).unwrap();
         assert!((cli.brightness - 1.0).abs() < f32::EPSILON);
     }
 
     #[test]
     fn parse_brightness_out_of_range() {
-        assert!(Cli::try_parse_from(["focus", "--theme", "x", "--brightness", "3.0"]).is_err());
-        assert!(Cli::try_parse_from(["focus", "--theme", "x", "--brightness", "0.05"]).is_err());
+        assert!(Cli::try_parse_from(["hyprfocus", "--theme", "x", "--brightness", "3.0"]).is_err());
+        assert!(
+            Cli::try_parse_from(["hyprfocus", "--theme", "x", "--brightness", "0.05"]).is_err()
+        );
     }
 
     #[test]
     fn parse_saturation_valid() {
-        let cli = Cli::try_parse_from(["focus", "--theme", "x", "--saturation", "1.5"]).unwrap();
+        let cli =
+            Cli::try_parse_from(["hyprfocus", "--theme", "x", "--saturation", "1.5"]).unwrap();
         assert!((cli.saturation - 1.5).abs() < f32::EPSILON);
     }
 
     #[test]
     fn parse_saturation_default() {
-        let cli = Cli::try_parse_from(["focus", "--theme", "x"]).unwrap();
+        let cli = Cli::try_parse_from(["hyprfocus", "--theme", "x"]).unwrap();
         assert!((cli.saturation - 1.0).abs() < f32::EPSILON);
     }
 
     #[test]
     fn parse_saturation_out_of_range() {
-        assert!(Cli::try_parse_from(["focus", "--theme", "x", "--saturation", "3.0"]).is_err());
+        assert!(Cli::try_parse_from(["hyprfocus", "--theme", "x", "--saturation", "3.0"]).is_err());
     }
 
     #[test]
     fn no_args_is_error() {
-        assert!(Cli::try_parse_from(["focus"]).is_err());
+        assert!(Cli::try_parse_from(["hyprfocus"]).is_err());
     }
 }

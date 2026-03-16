@@ -11,7 +11,7 @@ in vec2 v_texcoord;
 uniform sampler2D tex;
 out vec4 fragColor;
 
-// Focus monochromatic shader
+// Hyprfocus monochromatic shader
 const vec3 themeColor = vec3({R}, {G}, {B});
 const float intensity = {INTENSITY};
 const float brightness = {BRIGHTNESS};
@@ -61,7 +61,7 @@ pub fn shader_dir() -> Result<PathBuf> {
         return Err(FocusError::NoRuntimeDir);
     }
 
-    Ok(base.join("focus"))
+    Ok(base.join("hyprfocus"))
 }
 
 /// Write the shader to disk and return its path.
@@ -78,7 +78,7 @@ pub fn write_shader(
     })?;
 
     let path = dir.join(format!(
-        "focus-{}-i{:.0}-b{:.0}-s{:.0}.glsl",
+        "hyprfocus-{}-i{:.0}-b{:.0}-s{:.0}.glsl",
         theme.name,
         intensity * 100.0,
         brightness * 100.0,
@@ -112,7 +112,7 @@ pub fn cleanup_shaders() -> Result<()> {
         if path
             .file_name()
             .and_then(|n| n.to_str())
-            .is_some_and(|n| n.starts_with("focus-") && n.ends_with(".glsl"))
+            .is_some_and(|n| n.starts_with("hyprfocus-") && n.ends_with(".glsl"))
         {
             fs::remove_file(&path).map_err(|e| FocusError::ShaderRemoveFailed {
                 path: path.clone(),
@@ -237,14 +237,14 @@ mod tests {
     #[serial]
     fn shader_dir_returns_path() {
         let dir = shader_dir().unwrap();
-        assert!(dir.to_string_lossy().ends_with("/focus"));
+        assert!(dir.to_string_lossy().ends_with("/hyprfocus"));
     }
 
     #[test]
     #[serial]
     fn write_and_cleanup_shaders() {
         let original_xdg = std::env::var("XDG_RUNTIME_DIR").ok();
-        let tmp = std::env::temp_dir().join("focus-test");
+        let tmp = std::env::temp_dir().join("hyprfocus-test");
         std::fs::create_dir_all(&tmp).unwrap();
         unsafe { std::env::set_var("XDG_RUNTIME_DIR", &tmp) };
 

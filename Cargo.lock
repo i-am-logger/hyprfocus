@@ -179,20 +179,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
-name = "focus"
-version = "1.2.0"
-dependencies = [
- "anyhow",
- "clap",
- "env_logger",
- "log",
- "serde",
- "serial_test",
- "thiserror",
- "toml",
-]
-
-[[package]]
 name = "futures-core"
 version = "0.3.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -238,6 +224,20 @@ name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
+
+[[package]]
+name = "hyprfocus"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "env_logger",
+ "log",
+ "serde",
+ "serial_test",
+ "thiserror",
+ "toml",
+]
 
 [[package]]
 name = "indexmap"

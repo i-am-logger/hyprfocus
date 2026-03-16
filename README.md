@@ -1,12 +1,12 @@
-# Focus
-[![CI](https://github.com/i-am-logger/focus/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/i-am-logger/focus/actions/workflows/ci.yml)
+# Hyprfocus
+[![CI](https://github.com/i-am-logger/hyprfocus/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/i-am-logger/hyprfocus/actions/workflows/ci.yml)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Rust](https://img.shields.io/badge/Rust-2024-orange?logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![Hyprland](https://img.shields.io/badge/Hyprland-58E1FF?logo=hyprland&logoColor=white)](https://hyprland.org/)
 
 > Monochromatic screen overlay for Hyprland.
 
-Focus overlays your entire screen with shades of a single color palette, creating an immersive monochromatic experience. Choose a theme and your desktop transforms — military green night-vision, amber warmth, cyber cyan, and more.
+Hyprfocus overlays your entire screen with shades of a single color palette, creating an immersive monochromatic experience. Choose a theme and your desktop transforms — military green night-vision, amber warmth, cyber cyan, and more.
 
 Built as a Rust CLI that generates GLSL shaders and applies them via Hyprland's native `decoration:screen_shader`. Works on all content including fullscreen apps. Launch it from your keybinds.
 
@@ -38,37 +38,40 @@ Built as a Rust CLI that generates GLSL shaders and applies them via Hyprland's 
 
 ```bash
 # Apply a theme
-focus --theme military
+hyprfocus --theme military
 
 # Apply with reduced intensity (50% blend)
-focus --theme cyber --opacity 0.5
+hyprfocus --theme cyber --opacity 0.5
 
 # Dim the output
-focus --theme amber --brightness 0.5
+hyprfocus --theme amber --brightness 0.5
 
 # Boost color vividness
-focus --theme sepia --saturation 1.5
+hyprfocus --theme sepia --saturation 1.5
 
 # Combine adjustments
-focus --theme void --opacity 0.8 --brightness 1.2 --saturation 1.3
+hyprfocus --theme void --opacity 0.8 --brightness 1.2 --saturation 1.3
+
+# Check current state
+hyprfocus --status
 
 # List available themes
-focus --list
+hyprfocus --list
 
 # Turn off
-focus --off
+hyprfocus --off
 ```
 
 ### Hyprland Keybinds
 
 ```ini
-bind = $mainMod, F, exec, focus --theme military
-bind = $mainMod SHIFT, F, exec, focus --off
+bind = $mainMod, F, exec, hyprfocus --theme military
+bind = $mainMod SHIFT, F, exec, hyprfocus --off
 ```
 
 ## How It Works
 
-Focus generates a GLSL fragment shader that converts each pixel to luminance (using Rec. 709 coefficients) and maps it to the theme color. The shader is applied at the compositor level via `hyprctl keyword decoration:screen_shader`, so it works on everything — including fullscreen apps and video.
+Hyprfocus generates a GLSL fragment shader that converts each pixel to luminance (using Rec. 709 coefficients) and maps it to the theme color. The shader is applied at the compositor level via `hyprctl keyword decoration:screen_shader`, so it works on everything — including fullscreen apps and video.
 
 | Flag | Range | Effect |
 |------|-------|--------|

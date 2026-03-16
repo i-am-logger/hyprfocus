@@ -1,5 +1,5 @@
 [package]
-name = "focus"
+name = "hyprfocus"
 version = "1.2.0"
 edition = "2024"
 authors = ["i-am-logger"]

@@ -24,7 +24,7 @@ pub fn state_path() -> PathBuf {
             let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".to_string());
             PathBuf::from(home).join(".local/state")
         });
-    base.join("focus/state.toml")
+    base.join("hyprfocus/state.toml")
 }
 
 /// Write the current state to disk.
@@ -85,7 +85,7 @@ mod tests {
 
     fn with_temp_state_home<F: FnOnce()>(f: F) {
         let original = std::env::var("XDG_STATE_HOME").ok();
-        let tmp = std::env::temp_dir().join("focus-state-test");
+        let tmp = std::env::temp_dir().join("hyprfocus-state-test");
         std::fs::create_dir_all(&tmp).unwrap();
         unsafe { std::env::set_var("XDG_STATE_HOME", &tmp) };
 
@@ -101,7 +101,7 @@ mod tests {
     #[test]
     fn state_path_uses_xdg() {
         let path = state_path();
-        assert!(path.to_string_lossy().ends_with("focus/state.toml"));
+        assert!(path.to_string_lossy().ends_with("hyprfocus/state.toml"));
     }
 
     #[test]
