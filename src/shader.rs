@@ -19,23 +19,44 @@ const float brightness = {BRIGHTNESS};
 void main() {
     vec4 pixColor = texture(tex, v_texcoord);
 
+    // Invert brightness if enabled (before luminance extraction)
+{INVERT_BLOCK}
     // Rec. 709 luminance
     float luminance = dot(pixColor.rgb, vec3({LUMA_R}, {LUMA_G}, {LUMA_B}));
 
     // Luminance mapped to theme color, scaled by brightness
     vec3 mono = luminance * themeColor * brightness;
 
-    // Blend original and monochromatic
+    // Blend original and monochromatic (uses inverted pixColor for opacity blend)
     vec3 result = mix(pixColor.rgb, mono, intensity);
 
     fragColor = vec4(result, pixColor.a);
 }
 "#;
 
-/// Generate GLSL shader source for a theme with intensity, brightness, and saturation.
+/// Generate GLSL shader source for a theme with intensity, brightness, saturation, and invert.
 #[must_use]
-pub fn generate_shader(theme: &Theme, intensity: f32, brightness: f32, saturation: f32) -> String {
+pub fn generate_shader(
+    theme: &Theme,
+    intensity: f32,
+    brightness: f32,
+    saturation: f32,
+    invert: bool,
+) -> String {
     let color = theme.color.with_saturation(saturation);
+    // Novikov brightness inversion: inverts lightness while preserving color character
+    // Adapted from https://github.com/vn971/linux-color-inversion
+    // Applies shift to original pixels BEFORE luminance extraction
+    let invert_block = if invert {
+        concat!(
+            "    float mn = min(min(pixColor.r, pixColor.g), pixColor.b);\n",
+            "    float mx = max(max(pixColor.r, pixColor.g), pixColor.b);\n",
+            "    float offset = 0.17 - mx - mn + 1.0;\n",
+            "    pixColor.rgb = (pixColor.rgb + offset) / 1.17;\n",
+        )
+    } else {
+        ""
+    };
     SHADER_TEMPLATE
         .replace("{R}", &format!("{:.4}", color.r))
         .replace("{G}", &format!("{:.4}", color.g))
@@ -48,6 +69,7 @@ pub fn generate_shader(theme: &Theme, intensity: f32, brightness: f32, saturatio
         .replace("{LUMA_R}", &format!("{:.4}", theme::LUMA_R))
         .replace("{LUMA_G}", &format!("{:.4}", theme::LUMA_G))
         .replace("{LUMA_B}", &format!("{:.4}", theme::LUMA_B))
+        .replace("{INVERT_BLOCK}", invert_block)
 }
 
 /// Return the directory for shader files.
@@ -70,6 +92,7 @@ pub fn write_shader(
     intensity: f32,
     brightness: f32,
     saturation: f32,
+    invert: bool,
 ) -> Result<PathBuf> {
     let dir = shader_dir()?;
     fs::create_dir_all(&dir).map_err(|e| FocusError::ShaderWriteFailed {
@@ -77,14 +100,15 @@ pub fn write_shader(
         source: e,
     })?;
 
+    let inv = if invert { "-inv" } else { "" };
     let path = dir.join(format!(
-        "hypr-vogix-{}-i{:.0}-b{:.0}-s{:.0}.glsl",
+        "hypr-vogix-{}-i{:.0}-b{:.0}-s{:.0}{inv}.glsl",
         theme.name,
         intensity * 100.0,
         brightness * 100.0,
         saturation * 100.0
     ));
-    let source = generate_shader(theme, intensity, brightness, saturation);
+    let source = generate_shader(theme, intensity, brightness, saturation, invert);
 
     fs::write(&path, source).map_err(|e| FocusError::ShaderWriteFailed {
         path: path.clone(),
@@ -151,46 +175,46 @@ mod tests {
 
     #[test]
     fn generate_contains_version() {
-        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0);
+        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0, false);
         assert!(src.starts_with("#version 300 es"));
     }
 
     #[test]
     fn generate_contains_theme_color() {
-        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0);
+        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0, false);
         assert!(src.contains("vec3(0.0000, 1.0000, 0.0000)"));
     }
 
     #[test]
     fn generate_contains_intensity() {
-        let src = generate_shader(&test_theme(), 0.8, 1.0, 1.0);
+        let src = generate_shader(&test_theme(), 0.8, 1.0, 1.0, false);
         assert!(src.contains("const float intensity = 0.8000;"));
     }
 
     #[test]
     fn generate_full_intensity() {
-        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0);
+        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0, false);
         assert!(src.contains("const float intensity = 1.0000;"));
     }
 
     #[test]
     fn generate_zero_intensity() {
-        let src = generate_shader(&test_theme(), 0.0, 1.0, 1.0);
+        let src = generate_shader(&test_theme(), 0.0, 1.0, 1.0, false);
         assert!(src.contains("const float intensity = 0.0000;"));
     }
 
     #[test]
     fn generate_clamps_intensity() {
-        let src = generate_shader(&test_theme(), 2.0, 1.0, 1.0);
+        let src = generate_shader(&test_theme(), 2.0, 1.0, 1.0, false);
         assert!(src.contains("const float intensity = 1.0000;"));
 
-        let src = generate_shader(&test_theme(), -0.5, 1.0, 1.0);
+        let src = generate_shader(&test_theme(), -0.5, 1.0, 1.0, false);
         assert!(src.contains("const float intensity = 0.0000;"));
     }
 
     #[test]
     fn generate_has_valid_glsl_structure() {
-        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0);
+        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0, false);
         assert!(src.contains("void main()"));
         assert!(src.contains("fragColor ="));
         assert!(src.contains("texture(tex, v_texcoord)"));
@@ -199,37 +223,49 @@ mod tests {
 
     #[test]
     fn generate_brightness_default() {
-        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0);
+        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0, false);
         assert!(src.contains("const float brightness = 1.0000;"));
     }
 
     #[test]
     fn generate_brightness_dim() {
-        let src = generate_shader(&test_theme(), 1.0, 0.5, 1.0);
+        let src = generate_shader(&test_theme(), 1.0, 0.5, 1.0, false);
         assert!(src.contains("const float brightness = 0.5000;"));
     }
 
     #[test]
     fn generate_brightness_boost() {
-        let src = generate_shader(&test_theme(), 1.0, 1.8, 1.0);
+        let src = generate_shader(&test_theme(), 1.0, 1.8, 1.0, false);
         assert!(src.contains("const float brightness = 1.8000;"));
     }
 
     #[test]
     fn generate_saturation_desaturate() {
-        let src = generate_shader(&test_theme(), 1.0, 1.0, 0.0);
+        let src = generate_shader(&test_theme(), 1.0, 1.0, 0.0, false);
         assert!(src.contains("vec3(0.7152, 0.7152, 0.7152)"));
     }
 
     #[test]
     fn generate_saturation_boost() {
-        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.5);
+        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.5, false);
         assert!(src.contains("vec3(0.0000, 1.0000, 0.0000)"));
     }
 
     #[test]
+    fn generate_invert_off() {
+        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0, false);
+        assert!(!src.contains("exp("));
+    }
+
+    #[test]
+    fn generate_invert_on() {
+        let src = generate_shader(&test_theme(), 1.0, 1.0, 1.0, true);
+        assert!(src.contains("pixColor.rgb = (pixColor.rgb + offset) / 1.17"));
+    }
+
+    #[test]
     fn generate_amber_color() {
-        let src = generate_shader(&amber_theme(), 1.0, 1.0, 1.0);
+        let src = generate_shader(&amber_theme(), 1.0, 1.0, 1.0, false);
         assert!(src.contains("vec3(1.0000, 0.7100, 0.0000)"));
     }
 
@@ -249,7 +285,7 @@ mod tests {
         unsafe { std::env::set_var("XDG_RUNTIME_DIR", &tmp) };
 
         // Write
-        let path = write_shader(&test_theme(), 1.0, 1.0, 1.0).unwrap();
+        let path = write_shader(&test_theme(), 1.0, 1.0, 1.0, false).unwrap();
         assert!(path.exists());
         let content = std::fs::read_to_string(&path).unwrap();
         assert!(content.contains("#version 300 es"));

@@ -24,6 +24,10 @@ pub struct Cli {
     #[arg(short, long, default_value = "1.0", requires = "theme", value_parser = parse_saturation)]
     pub saturation: f32,
 
+    /// Invert luminance (dark becomes theme color, light becomes dark)
+    #[arg(short, long, requires = "theme")]
+    pub invert: bool,
+
     /// Turn off the current overlay
     #[arg(long)]
     pub off: bool,

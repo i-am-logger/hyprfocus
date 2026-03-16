@@ -53,8 +53,14 @@ fn run(cli: Cli) -> Result<()> {
         }
         shader::cleanup_shaders().context("failed to clean up old shader files")?;
 
-        let shader_path = shader::write_shader(theme, cli.opacity, cli.brightness, cli.saturation)
-            .context("failed to write shader")?;
+        let shader_path = shader::write_shader(
+            theme,
+            cli.opacity,
+            cli.brightness,
+            cli.saturation,
+            cli.invert,
+        )
+        .context("failed to write shader")?;
         hyprctl::set_shader(&shader_path).context("failed to apply shader")?;
 
         state::save(&state::State {
@@ -62,6 +68,7 @@ fn run(cli: Cli) -> Result<()> {
             opacity: cli.opacity,
             brightness: cli.brightness,
             saturation: cli.saturation,
+            invert: cli.invert,
         })
         .context("failed to save state")?;
 
@@ -94,6 +101,7 @@ fn print_status() -> Result<()> {
             println!("  opacity:    {:.1}", s.opacity);
             println!("  brightness: {:.1}", s.brightness);
             println!("  saturation: {:.1}", s.saturation);
+            println!("  invert:     {}", s.invert);
         }
         None => {
             println!("No active overlay.");
