@@ -28,6 +28,10 @@ pub struct Cli {
     #[arg(long)]
     pub off: bool,
 
+    /// Show current overlay status
+    #[arg(long)]
+    pub status: bool,
+
     /// List available themes
     #[arg(short, long)]
     pub list: bool,

@@ -2,6 +2,7 @@ mod cli;
 mod errors;
 mod hyprctl;
 mod shader;
+mod state;
 mod theme;
 
 use anyhow::{Context, Result};
@@ -27,10 +28,16 @@ fn run(cli: Cli) -> Result<()> {
         return Ok(());
     }
 
+    if cli.status {
+        print_status()?;
+        return Ok(());
+    }
+
     if cli.off {
         hyprctl::check_environment()?;
         hyprctl::clear_shader().context("failed to clear shader")?;
         shader::cleanup_shaders().context("failed to clean up shader files")?;
+        state::clear().context("failed to clear state")?;
         return Ok(());
     }
 
@@ -49,6 +56,14 @@ fn run(cli: Cli) -> Result<()> {
         let shader_path = shader::write_shader(theme, cli.opacity, cli.brightness, cli.saturation)
             .context("failed to write shader")?;
         hyprctl::set_shader(&shader_path).context("failed to apply shader")?;
+
+        state::save(&state::State {
+            theme: theme.name.to_string(),
+            opacity: cli.opacity,
+            brightness: cli.brightness,
+            saturation: cli.saturation,
+        })
+        .context("failed to save state")?;
 
         log::info!("Applied '{}'", theme.name);
         return Ok(());
@@ -69,6 +84,22 @@ fn print_themes() {
     }
     println!();
     println!("Usage: focus --theme <NAME> [--opacity] [--brightness] [--saturation]");
+}
+
+fn print_status() -> Result<()> {
+    match state::load().context("failed to read state")? {
+        Some(s) => {
+            println!("Active overlay:\n");
+            println!("  theme:      {}", s.theme);
+            println!("  opacity:    {:.1}", s.opacity);
+            println!("  brightness: {:.1}", s.brightness);
+            println!("  saturation: {:.1}", s.saturation);
+        }
+        None => {
+            println!("No active overlay.");
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -105,5 +136,11 @@ mod tests {
         let cli = Cli::try_parse_from(["focus", "--theme", "military"]).unwrap();
         let err = run(cli).unwrap_err();
         assert!(err.downcast_ref::<FocusError>().is_some());
+    }
+
+    #[test]
+    fn run_status() {
+        let cli = Cli::try_parse_from(["focus", "--status"]).unwrap();
+        assert!(run(cli).is_ok());
     }
 }

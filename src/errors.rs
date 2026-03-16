@@ -26,6 +26,18 @@ pub enum FocusError {
         source: std::io::Error,
     },
 
+    #[error("failed to write state to {path}: {source}")]
+    StateWriteFailed {
+        path: PathBuf,
+        source: std::io::Error,
+    },
+
+    #[error("failed to read state from {path}: {source}")]
+    StateReadFailed {
+        path: PathBuf,
+        source: std::io::Error,
+    },
+
     #[error("no runtime directory available (XDG_RUNTIME_DIR not set, /tmp fallback failed)")]
     NoRuntimeDir,
 }
