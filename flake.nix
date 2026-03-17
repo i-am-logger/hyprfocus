@@ -16,8 +16,20 @@
       cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
     in
     {
+      # Build with consumer's pkgs so NixOS allowUnfreePredicate applies
       overlays.default = final: _prev: {
-        hypr-vogix = self.packages.${final.system}.default;
+        hypr-vogix = final.rustPlatform.buildRustPackage {
+          pname = cargoToml.package.name;
+          version = cargoToml.package.version;
+          src = self;
+          cargoLock.lockFile = "${self}/Cargo.lock";
+          meta = {
+            description = cargoToml.package.description;
+            homepage = cargoToml.package.repository;
+            license = final.lib.licenses.cc-by-nc-sa-40;
+            mainProgram = "hypr-vogix";
+          };
+        };
       };
 
       packages = forAllSystems (
