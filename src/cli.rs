@@ -24,13 +24,9 @@ pub struct Cli {
     #[arg(short, long, default_value = "1.0", requires = "theme", value_parser = parse_saturation)]
     pub saturation: f32,
 
-    /// Invert lightness using OKLAB color space
-    #[arg(short, long, requires = "theme")]
-    pub invert: bool,
-
-    /// Invert lightness using experimental algorithm
-    #[arg(long = "ie", requires = "theme", conflicts_with = "invert")]
-    pub invert_experimental: bool,
+    /// Invert lightness using algorithm: oklab, hsv
+    #[arg(short, long, value_name = "ALGO", requires = "theme", value_parser = parse_invert)]
+    pub invert: Option<String>,
 
     /// Turn off the current overlay
     #[arg(long)]
@@ -43,6 +39,13 @@ pub struct Cli {
     /// List available themes
     #[arg(short, long)]
     pub list: bool,
+}
+
+fn parse_invert(s: &str) -> Result<String, String> {
+    match s {
+        "oklab" | "hsv" => Ok(s.to_string()),
+        _ => Err(format!("unknown algorithm '{s}', available: oklab, hsv")),
+    }
 }
 
 fn parse_opacity(s: &str) -> Result<f32, String> {

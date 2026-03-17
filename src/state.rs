@@ -12,8 +12,7 @@ pub struct State {
     pub opacity: f32,
     pub brightness: f32,
     pub saturation: f32,
-    pub invert: bool,
-    pub invert_experimental: bool,
+    pub invert: Option<String>,
 }
 
 /// Return the state file path: `$XDG_STATE_HOME/focus/state.toml`
@@ -115,8 +114,7 @@ mod tests {
                 opacity: 1.0,
                 brightness: 0.8,
                 saturation: 1.2,
-                invert: false,
-                invert_experimental: false,
+                invert: None,
             };
             save(&state).unwrap();
 
@@ -146,8 +144,7 @@ mod tests {
                 opacity: 1.0,
                 brightness: 1.0,
                 saturation: 1.0,
-                invert: false,
-                invert_experimental: false,
+                invert: None,
             };
             save(&state).unwrap();
             assert!(state_path().exists());
@@ -169,8 +166,7 @@ mod tests {
                 opacity: 1.0,
                 brightness: 1.0,
                 saturation: 1.0,
-                invert: false,
-                invert_experimental: false,
+                invert: None,
             };
             save(&state).unwrap();
 

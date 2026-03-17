@@ -58,8 +58,7 @@ fn run(cli: Cli) -> Result<()> {
             cli.opacity,
             cli.brightness,
             cli.saturation,
-            cli.invert,
-            cli.invert_experimental,
+            cli.invert.as_deref(),
         )
         .context("failed to write shader")?;
         hyprctl::set_shader(&shader_path).context("failed to apply shader")?;
@@ -69,8 +68,7 @@ fn run(cli: Cli) -> Result<()> {
             opacity: cli.opacity,
             brightness: cli.brightness,
             saturation: cli.saturation,
-            invert: cli.invert,
-            invert_experimental: cli.invert_experimental,
+            invert: cli.invert.clone(),
         })
         .context("failed to save state")?;
 
@@ -103,9 +101,8 @@ fn print_status() -> Result<()> {
             println!("  opacity:    {:.1}", s.opacity);
             println!("  brightness: {:.1}", s.brightness);
             println!("  saturation: {:.1}", s.saturation);
-            println!("  invert:     {}", s.invert);
-            if s.invert_experimental {
-                println!("  algorithm:  experimental");
+            if let Some(ref algo) = s.invert {
+                println!("  invert:     {algo}");
             }
         }
         None => {
