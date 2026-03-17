@@ -16,6 +16,10 @@
       cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
     in
     {
+      overlays.default = final: _prev: {
+        hypr-vogix = self.packages.${final.system}.default;
+      };
+
       packages = forAllSystems (
         system:
         let
