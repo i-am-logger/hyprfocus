@@ -138,7 +138,12 @@ fn print_themes() {
         );
     }
     println!();
-    println!("Usage: hypr-vogix --theme <NAME> [--opacity] [--brightness] [--saturation]");
+    println!(
+        "Usage: hypr-vogix --theme <NAME> [--opacity] [--brightness] [--saturation] [--invert ALGO]"
+    );
+    println!(
+        "       hypr-vogix --restore --theme <NAME> [--opacity] [--brightness] [--saturation]"
+    );
 }
 
 fn print_status() -> Result<()> {

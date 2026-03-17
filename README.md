@@ -58,6 +58,9 @@ hypr-vogix --theme cyber --invert oklab
 hypr-vogix --theme cyber --invert okhsl
 hypr-vogix --theme cyber --invert hsv
 
+# Restore last saved state (or apply fallback defaults)
+hypr-vogix --restore --theme military --opacity 0.7
+
 # Check current state
 hypr-vogix --status
 
@@ -68,11 +71,33 @@ hypr-vogix --list
 hypr-vogix --off
 ```
 
+### Restore on Login
+
+Use `--restore` to resume the last active overlay on login. If no saved state exists, the provided `--theme`/`--opacity` values are applied as defaults:
+
+```bash
+# Hyprland exec-once (in hyprland.conf)
+exec-once = hypr-vogix --restore --theme military --opacity 0.7
+```
+
 ### Hyprland Keybinds
 
 ```ini
 bind = $mainMod, F, exec, hypr-vogix --theme military
 bind = $mainMod SHIFT, F, exec, hypr-vogix --off
+```
+
+### Nix Flake
+
+```nix
+# As a flake input
+hypr-vogix = {
+  url = "github:i-am-logger/hypr-vogix";
+  inputs.nixpkgs.follows = "nixpkgs";
+};
+
+# Use the overlay to get pkgs.hypr-vogix
+nixpkgs.overlays = [ hypr-vogix.overlays.default ];
 ```
 
 ## How It Works
