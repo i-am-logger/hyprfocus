@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/i-am-logger/hypr-vogix/compare/hypr-vogix-v1.6.0...hypr-vogix-v1.6.1) (2026-03-17)
+
+
+### Bug Fixes
+
+* replace clear with ANSI escape to prevent DA response leak ([ad911b8](https://github.com/i-am-logger/hypr-vogix/commit/ad911b83ffe6401ef78ca86be93864ed8195b962))
+
 ## [1.6.0](https://github.com/i-am-logger/hypr-vogix/compare/hypr-vogix-v1.5.0...hypr-vogix-v1.6.0) (2026-03-17)
 
 
