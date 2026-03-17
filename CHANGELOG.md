@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.6.0](https://github.com/i-am-logger/hypr-vogix/compare/hypr-vogix-v1.5.0...hypr-vogix-v1.6.0) (2026-03-17)
+
+
+### Features
+
+* add OKHsl inversion algorithm and unify -i flag ([5087106](https://github.com/i-am-logger/hypr-vogix/commit/50871066d0af37e7b77e5a11d5a806d55a124ca7))
+* HSV value inversion for experimental mode ([1a0d9f6](https://github.com/i-am-logger/hypr-vogix/commit/1a0d9f6329337b7faf18c4f182d0ceb7819f7753))
+* unify invert into algorithm selector ([b1e97e5](https://github.com/i-am-logger/hypr-vogix/commit/b1e97e520bb7f8bf33d6fd1939c82076a6f817ad))
+
+
+### Bug Fixes
+
+* code review cleanup ([7bd97ed](https://github.com/i-am-logger/hypr-vogix/commit/7bd97ed74cb22f0c7835abc784611090aca90309))
+* rename FocusError to AppError, fix TOML error handling ([607c1d6](https://github.com/i-am-logger/hypr-vogix/commit/607c1d662da5d5512c8a135afa917b068335afeb))
+
 ## [1.5.0](https://github.com/i-am-logger/hypr-vogix/compare/hypr-vogix-v1.4.0...hypr-vogix-v1.5.0) (2026-03-17)
 
 
